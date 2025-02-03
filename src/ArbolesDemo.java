@@ -10,8 +10,6 @@ import java.util.Scanner;
 
 // **Árbol B+
 
-// Bùsqueda B+
-
 class NodoBPlus {
     List<Integer> clavesBmas;
     List<NodoBPlus> hijosBmas;
@@ -30,11 +28,15 @@ class ArbolBPlus {
 
     public ArbolBPlus(int gradoBmas) {
         this.gradoBmas = gradoBmas;
-        this.raizBmas = new NodoBPlus(gradoBmas);
+        this.raizBmas = null; // Inicializar la raíz como null para permitir un árbol vacío
     }
 
-    // Inicio Insercion B+
     public static final String ROJOBmas = "\u001B[31m";
+    public static final String VERDEBmas = "\u001B[32m";
+    public static final String AMARILLOBmas = "\u001B[33m";
+    public static final String CYANBmas = "\u001B[36m";
+    public static final String RESETBmas = "\u001B[0m";
+
     public void insertarBmas(int claveBmas) {
         // Verificar si la clave está dentro del rango permitido
         if (claveBmas < 1 || claveBmas > 100) {
@@ -42,9 +44,17 @@ class ArbolBPlus {
             return;
         }
 
+        // Si el árbol está vacío, crear un nuevo nodo raíz
+        if (raizBmas == null) {
+            raizBmas = new NodoBPlus(gradoBmas);
+            raizBmas.clavesBmas.add(claveBmas);
+            System.out.println("Clave " + claveBmas + " insertada como raíz.");
+            return;
+        }
+
         // Verificar la altura del árbol
-        if (altura(raizBmas) >= 4) { // Cambiar a 4 para permitir altura máxima de 4
-            System.out.println(ROJOBmas + "No se puede insertar más claves, el árbol ha alcanzado la altura máxima de 4." + RESETBmas);
+        if (altura(raizBmas) >= 4) {
+            System.out.println(ROJOBmas + "No se puede insertar más claves, el árbol ha alcanzado la altura máxima de 3." + RESETBmas);
             return;
         }
 
@@ -68,8 +78,7 @@ class ArbolBPlus {
                 iBmas--;
             }
             nodoBmas.clavesBmas.add(iBmas + 1, claveBmas);
-            System.out.println("Clave " + AMARILLOBmas + claveBmas + RESETBmas + " insertada en el nodo hoja.");
-            imprimirArbolBmas(0, -1); // Mostrar el árbol después de la inserción
+            System.out.println("Clave " + claveBmas + " insertada en el nodo hoja.");
         } else {
             while (iBmas >= 0 && claveBmas < nodoBmas.clavesBmas.get(iBmas)) {
                 iBmas--;
@@ -105,16 +114,116 @@ class ArbolBPlus {
             hijoBmas.hijosBmas.subList(midBmas + 1, hijoBmas.hijosBmas.size()).clear();
         }
     }
-    // Fin Insercion B+
-    // Inicio Bùsqueda B+
+
+    // Método para eliminar una clave
+    public void eliminarBmas(int claveBmas) {
+        if (raizBmas == null) {
+            System.out.println(ROJOBmas + "El árbol está vacío." + RESETBmas);
+            return;
+        }
+        eliminarEnNodoBmas(raizBmas, claveBmas);
+
+        // Si la raíz se queda vacía, actualizar la raíz
+        if (raizBmas.clavesBmas.isEmpty()) {
+            raizBmas = raizBmas.hijosBmas.isEmpty() ? null : raizBmas.hijosBmas.get(0);
+        }
+    }
+
+    private void eliminarEnNodoBmas(NodoBPlus nodoBmas, int claveBmas) {
+        int iBmas = 0;
+        while (iBmas < nodoBmas.clavesBmas.size() && claveBmas > nodoBmas.clavesBmas.get(iBmas)) {
+            iBmas++;
+        }
+
+        if (iBmas < nodoBmas.clavesBmas.size() && claveBmas == nodoBmas.clavesBmas.get(iBmas)) {
+            if (nodoBmas.esHojaBmas) {
+                nodoBmas.clavesBmas.remove(iBmas);
+            } else {
+                // Si no es hoja, se debe encontrar el predecesor o sucesor
+                NodoBPlus hijoIzquierdo = nodoBmas.hijosBmas.get(iBmas);
+                if (hijoIzquierdo.clavesBmas.size() >= gradoBmas / 2) {
+                    int clavePredecesor = obtenerPredecesor(hijoIzquierdo);
+                    nodoBmas.clavesBmas.set(iBmas, clavePredecesor);
+                    eliminarEnNodoBmas(hijoIzquierdo, clavePredecesor);
+                } else {
+                    NodoBPlus hijoDerecho = nodoBmas.hijosBmas.get(iBmas + 1);
+                    if (hijoDerecho.clavesBmas.size() >= gradoBmas / 2) {
+                        int claveSucesor = obtenerSucesor(hijoDerecho);
+                        nodoBmas.clavesBmas.set(iBmas, claveSucesor);
+                        eliminarEnNodoBmas(hijoDerecho, claveSucesor);
+                    } else {
+                        fusionar(nodoBmas, iBmas);
+                        eliminarEnNodoBmas(hijoIzquierdo, claveBmas);
+                    }
+                }
+            }
+        } else if (!nodoBmas.esHojaBmas) {
+            NodoBPlus hijoBmas = nodoBmas.hijosBmas.get(iBmas);
+            if (hijoBmas.clavesBmas.size() < gradoBmas / 2) {
+                balancear(nodoBmas, iBmas);
+            }
+            eliminarEnNodoBmas(hijoBmas, claveBmas);
+        }
+    }
+
+    private int obtenerPredecesor(NodoBPlus nodo) {
+        while (!nodo.esHojaBmas) {
+            nodo = nodo.hijosBmas.get(nodo.hijosBmas.size() - 1);
+        }
+        return nodo.clavesBmas.get(nodo.clavesBmas.size() - 1);
+    }
+
+    private int obtenerSucesor(NodoBPlus nodo) {
+        while (!nodo.esHojaBmas) {
+            nodo = nodo.hijosBmas.get(0);
+        }
+        return nodo.clavesBmas.get(0);
+    }
+
+    private void fusionar(NodoBPlus nodoBmas, int indice) {
+        NodoBPlus hijoIzquierdo = nodoBmas.hijosBmas.get(indice);
+        NodoBPlus hijoDerecho = nodoBmas.hijosBmas.get(indice + 1);
+        hijoIzquierdo.clavesBmas.add(nodoBmas.clavesBmas.get(indice));
+        hijoIzquierdo.clavesBmas.addAll(hijoDerecho.clavesBmas);
+        hijoIzquierdo.hijosBmas.addAll(hijoDerecho.hijosBmas);
+        nodoBmas.clavesBmas.remove(indice);
+        nodoBmas.hijosBmas.remove(indice + 1);
+    }
+
+    private void balancear(NodoBPlus nodoBmas, int indice) {
+        if (indice > 0 && nodoBmas.hijosBmas.get(indice - 1).clavesBmas.size() >= gradoBmas / 2) {
+            NodoBPlus hijoIzquierdo = nodoBmas.hijosBmas.get(indice - 1);
+            NodoBPlus hijoDerecho = nodoBmas.hijosBmas.get(indice);
+            hijoDerecho.clavesBmas.add(0, nodoBmas.clavesBmas.get(indice - 1));
+            nodoBmas.clavesBmas.set(indice - 1, hijoIzquierdo.clavesBmas.remove(hijoIzquierdo.clavesBmas.size() - 1));
+            if (!hijoIzquierdo.esHojaBmas) {
+                hijoDerecho.hijosBmas.add(0, hijoIzquierdo.hijosBmas.remove(hijoIzquierdo.hijosBmas.size() - 1));
+            }
+        } else if (indice < nodoBmas.hijosBmas.size() - 1 && nodoBmas.hijosBmas.get(indice + 1).clavesBmas.size() >= gradoBmas / 2) {
+            NodoBPlus hijoIzquierdo = nodoBmas.hijosBmas.get(indice);
+            NodoBPlus hijoDerecho = nodoBmas.hijosBmas.get(indice + 1);
+            hijoIzquierdo.clavesBmas.add(nodoBmas.clavesBmas.get(indice));
+            nodoBmas.clavesBmas.set(indice, hijoDerecho.clavesBmas.remove(0));
+            if (!hijoDerecho.esHojaBmas) {
+                hijoIzquierdo.hijosBmas.add(hijoDerecho.hijosBmas.remove(0));
+            }
+        } else {
+            if (indice > 0 && indice == nodoBmas.hijosBmas.size() - 1) {
+                indice--;
+            }
+            if (indice >= 0) {
+                fusionar(nodoBmas, indice);
+            } else {
+                System.out.println("Error: No se puede fusionar en índice negativo.");
+            }
+        }   
+    }
+
+    // Métodos de búsqueda, impresión y recorrido se mantienen igual...
+
     public void buscarBmas(int claveBmas) {
         buscarEnNodoBmas(raizBmas, claveBmas, "");
     }
-
-    public static final String VERDEBmas = "\u001B[32m";
-    public static final String CYANBmas = "\u001B[36m";
-    public static final String AMARILLOBmas = "\u001B[33m";
-    public static final String RESETBmas = "\u001B[0m";
 
     private void buscarEnNodoBmas(NodoBPlus nodoBmas, int claveBmas, String caminoBmas) {
         if (nodoBmas == null) {
@@ -128,7 +237,7 @@ class ArbolBPlus {
         }
 
         // Imprimir el árbol resaltando la clave que se está verificando
-        System.out.println(CYANBmas + "---------------------------------------------------------------------------------------------------------" + RESETBmas);
+        System.out.println(CYANBmas + "-------------------------------------------------------------------------------------------------------" + RESETBmas);
         System.out.println(VERDEBmas + "Recorrido actual del árbol" + RESETBmas);
         imprimirArbolBmas(claveBmas, iBmas); // Pasar la clave buscada y el índice
 
@@ -282,6 +391,7 @@ public class ArbolesDemo {
     public static final String CYANBmas = "\u001B[36m";
     public static final String ROJOBmas = "\u001B[31m";
     public static final String RESETBmas = "\u001B[0m";
+    public static final String AMARILLOBmas = "\u001B[33m";
 
     public static void main(String[] args) {
         Scanner scannerBmas = new Scanner(System.in);
@@ -310,7 +420,7 @@ public class ArbolesDemo {
                         System.out.println(CYANBmas + "\nMenu:" + RESETBmas);
                         System.out.println("1. Búsqueda de la clave de un nodo");
                         System.out.println("2. Inserción de un nuevo nodo en el árbol");
-                        System.out.println("3. Eliminación de un nodo en el árbol (no implementado)");
+                        System.out.println("3. Eliminación de un nodo en el árbol");
                         System.out.println("4. Recorrido del árbol");
                         System.out.println("0. Volver al menú principal");
                         System.out.print("Ingrese el número de la operación: ");
@@ -328,20 +438,56 @@ public class ArbolesDemo {
                                 arbolBmas.imprimirArbolBmas(0, -1);
                                 arbolInicializado = true; // Marcar el árbol como inicializado
                             }
+                            else {
+                                arbolBmas.imprimirArbolBmas(0, -1);
+                            }
                             System.out.print("Ingrese la clave a buscar: ");
                             int claveBuscadaBmas = Integer.parseInt(scannerBmas.nextLine());
                             arbolBmas.buscarBmas(claveBuscadaBmas);
-                            System.out.println(CYANBmas + "---------------------------------------------------------------------------------------------------------" + RESETBmas);
+                            System.out.println(CYANBmas + "-------------------------------------------------------------------------------------------------------" + RESETBmas);
                         } else if (operacionBmas == 2) {
-                            System.out.println(CYANBmas + "---------------------------------------------------------------------------------------------------------" + RESETBmas);
+                            System.out.println(CYANBmas + "-------------------------------------------------------------------------------------------------------" + RESETBmas);
+                            System.out.println("Arbol B+ antes de insertar la clave:");
+                            if (!arbolInicializado) {
+                                // Generar claves aleatorias solo una vez
+                                for (int iBmas = 0; iBmas < 15; iBmas++) {
+                                    arbolBmas.insertarBmas((int) (Math.random() * 100));
+                                }
+                                System.out.println("Los elementos del árbol son: (" + arbolBmas.recorridoInorden(arbolBmas.raizBmas)+ " ) ");
+                                System.out.println("Árbol B+ generado");
+                                arbolBmas.imprimirArbolBmas(0, -1);
+                                arbolInicializado = true; // Marcar el árbol como inicializado
+                            }
+                            else {
+                                arbolBmas.imprimirArbolBmas(0, -1);
+                            }
                             System.out.print("Ingrese la clave a insertar: ");
                             int claveInsertarBmas = Integer.parseInt(scannerBmas.nextLine());
                             arbolBmas.insertarBmas(claveInsertarBmas);
+                            arbolBmas.imprimirArbolBmas(0, -1);
                         } else if (operacionBmas == 3) {
-                            System.out.println(CYANBmas + "---------------------------------------------------------------------------------------------------------" + RESETBmas);
-                            // Lógica de eliminación no implementada
+                            System.out.println(CYANBmas + "-------------------------------------------------------------------------------------------------------" + RESETBmas);
+                            
+                            System.out.println("Arbol B+ antes de eliminar la clave:");
+                            if (!arbolInicializado) {
+                                // Generar claves aleatorias solo una vez
+                                for (int iBmas = 0; iBmas < 15; iBmas++) {
+                                    arbolBmas.insertarBmas((int) (Math.random() * 100));
+                                }
+                                System.out.println("Árbol B+ generado");
+                                arbolBmas.imprimirArbolBmas(0, -1);
+                                arbolInicializado = true; // Marcar el árbol como inicializado
+                            }
+                            else {
+                                arbolBmas.imprimirArbolBmas(0, -1);
+                            }
+                            System.out.print("Ingrese la clave a eliminar: ");
+                            int claveEliminarBmas = Integer.parseInt(scannerBmas.nextLine());
+                            arbolBmas.eliminarBmas(claveEliminarBmas);
+                            System.out.println(CYANBmas + "Árbol B+ después de eliminar la clave " + claveEliminarBmas + ":" + RESETBmas);
+                            arbolBmas.imprimirArbolBmas(0, -1);
                         } else if (operacionBmas == 4) {
-                            System.out.println(CYANBmas + "---------------------------------------------------------------------------------------------------------" + RESETBmas);
+                            System.out.println(CYANBmas + "-------------------------------------------------------------------------------------------------------" + RESETBmas);
                             Scanner scanner1 = new Scanner(System.in);
                             int opcion = 0;
 
