@@ -13,231 +13,246 @@ import java.util.Scanner;
 //Bùsqueda B+
 
 class NodoBPlus {
-    List<Integer> claves;
-    List<NodoBPlus> hijos;
-    boolean esHoja;
+    List<Integer> clavesBmas;
+    List<NodoBPlus> hijosBmas;
+    boolean esHojaBmas;
 
-    public NodoBPlus(int grado) {
-        this.claves = new ArrayList<>(grado - 1);
-        this.hijos = new ArrayList<>(grado);
-        this.esHoja = true;
+    public NodoBPlus(int gradoBmas) {
+        this.clavesBmas = new ArrayList<>(gradoBmas - 1);
+        this.hijosBmas = new ArrayList<>(gradoBmas);
+        this.esHojaBmas = true;
     }
 }
 
 class ArbolBPlus {
-    private NodoBPlus raiz;
-    private int grado;
+    private NodoBPlus raizBmas;
+    private int gradoBmas;
 
-    public ArbolBPlus(int grado) {
-        this.grado = grado;
-        this.raiz = new NodoBPlus(grado);
+    public ArbolBPlus(int gradoBmas) {
+        this.gradoBmas = gradoBmas;
+        this.raizBmas = new NodoBPlus(gradoBmas);
     }
+    public static final String ROJOBmas = "\u001B[31m";
+    public void insertarBmas(int claveBmas) {
+        // Verificar si la clave está dentro del rango permitido
+        if (claveBmas < 1 || claveBmas > 100) {
+            System.out.println(ROJOBmas + "La clave debe estar entre 1 y 100." + RESETBmas);
+            return;
+        }
 
-    public void insertar(int clave) {
-        NodoBPlus nodo = raiz;
-        if (nodo.claves.size() == grado - 1) {
-            NodoBPlus nuevoNodo = new NodoBPlus(grado);
-            raiz = nuevoNodo;
-            nuevoNodo.esHoja = false;
-            nuevoNodo.hijos.add(nodo);
-            dividir(nuevoNodo, nodo, 0);
-            insertarEnNodo(nuevoNodo, clave);
+        NodoBPlus nodoBmas = raizBmas;
+        if (nodoBmas.clavesBmas.size() == gradoBmas - 1) {
+            NodoBPlus nuevoNodoBmas = new NodoBPlus(gradoBmas);
+            raizBmas = nuevoNodoBmas;
+            nuevoNodoBmas.esHojaBmas = false;
+            nuevoNodoBmas.hijosBmas.add(nodoBmas);
+            dividirBmas(nuevoNodoBmas, nodoBmas, 0);
+            insertarEnNodoBmas(nuevoNodoBmas, claveBmas);
         } else {
-            insertarEnNodo(nodo, clave);
+            insertarEnNodoBmas(nodoBmas, claveBmas);
         }
     }
 
-    private void insertarEnNodo(NodoBPlus nodo, int clave) {
-        int i = nodo.claves.size() - 1;
-        if (nodo.esHoja) {
-            while (i >= 0 && clave < nodo.claves.get(i)) {
-                i--;
+    private void insertarEnNodoBmas(NodoBPlus nodoBmas, int claveBmas) {
+        int iBmas = nodoBmas.clavesBmas.size() - 1;
+        if (nodoBmas.esHojaBmas) {
+            while (iBmas >= 0 && claveBmas < nodoBmas.clavesBmas.get(iBmas)) {
+                iBmas--;
             }
-            nodo.claves.add(i + 1, clave);
+            nodoBmas.clavesBmas.add(iBmas + 1, claveBmas);
+            System.out.println("Clave " + claveBmas + " insertada en el nodo hoja.");
+            imprimirArbolBmas(0, -1); // Mostrar el árbol después de la inserción
         } else {
-            while (i >= 0 && clave < nodo.claves.get(i)) {
-                i--;
+            while (iBmas >= 0 && claveBmas < nodoBmas.clavesBmas.get(iBmas)) {
+                iBmas--;
             }
-            i++;
-            NodoBPlus hijo = nodo.hijos.get(i);
-            if (hijo.claves.size() == grado - 1) {
-                dividir(nodo, hijo, i);
-                if (clave > nodo.claves.get(i)) {
-                    i++;
+            iBmas++;
+            NodoBPlus hijoBmas = nodoBmas.hijosBmas.get(iBmas);
+            if (hijoBmas.clavesBmas.size() == gradoBmas - 1) {
+                dividirBmas(nodoBmas, hijoBmas, iBmas);
+                if (claveBmas > nodoBmas.clavesBmas.get(iBmas)) {
+                    iBmas++;
                 }
             }
-            insertarEnNodo(nodo.hijos.get(i), clave);
+            insertarEnNodoBmas(nodoBmas.hijosBmas.get(iBmas), claveBmas);
         }
     }
 
-    private void dividir(NodoBPlus padre, NodoBPlus hijo, int indice) {
-        NodoBPlus nuevoHijo = new NodoBPlus(grado);
-        int mid = grado / 2;
-        padre.claves.add(indice, hijo.claves.get(mid));
-        padre.hijos.add(indice + 1, nuevoHijo);
-        nuevoHijo.esHoja = hijo.esHoja;
+    private void dividirBmas(NodoBPlus padreBmas, NodoBPlus hijoBmas, int indiceBmas) {
+        NodoBPlus nuevoHijoBmas = new NodoBPlus(gradoBmas);
+        int midBmas = gradoBmas / 2;
+        padreBmas.clavesBmas.add(indiceBmas, hijoBmas.clavesBmas.get(midBmas));
+        padreBmas.hijosBmas.add(indiceBmas + 1, nuevoHijoBmas);
+        nuevoHijoBmas.esHojaBmas = hijoBmas.esHojaBmas;
 
-        for (int i = mid + 1; i < hijo.claves.size(); i++) {
-            nuevoHijo.claves.add(hijo.claves.get(i));
+        for (int iBmas = midBmas + 1; iBmas < hijoBmas.clavesBmas.size(); iBmas++) {
+            nuevoHijoBmas.clavesBmas.add(hijoBmas.clavesBmas.get(iBmas));
         }
-        hijo.claves.subList(mid, hijo.claves.size()).clear();
+        hijoBmas.clavesBmas.subList(midBmas, hijoBmas.clavesBmas.size()).clear();
 
-        if (!hijo.esHoja) {
-            for (int i = mid + 1; i < hijo.hijos.size(); i++) {
-                nuevoHijo.hijos.add(hijo.hijos.get(i));
+        if (!hijoBmas.esHojaBmas) {
+            for (int iBmas = midBmas + 1; iBmas < hijoBmas.hijosBmas.size(); iBmas++) {
+                nuevoHijoBmas.hijosBmas.add(hijoBmas.hijosBmas.get(iBmas));
             }
-            hijo.hijos.subList(mid + 1, hijo.hijos.size()).clear();
+            hijoBmas.hijosBmas.subList(midBmas + 1, hijoBmas.hijosBmas.size()).clear();
         }
     }
 
-    public void buscar(int clave) {
-        buscarEnNodo(raiz, clave, "");
+    public void buscarBmas(int claveBmas) {
+        buscarEnNodoBmas(raizBmas, claveBmas, "");
     }
 
-    public static final String VERDE = "\u001B[32m";
-    public static final String AMARILLO = "\u001B[33m";
-    public static final String CYAN = "\u001B[36m";
-    public static final String RESET = "\u001B[0m";
+    public static final String VERDEBmas = "\u001B[32m";
+    public static final String AMARILLOBmas = "\u001B[33m";
+    public static final String CYANBmas = "\u001B[36m";
+    public static final String RESETBmas = "\u001B[0m";
 
-    private void buscarEnNodo(NodoBPlus nodo, int clave, String camino) {
-        if (nodo == null) {
+    private void buscarEnNodoBmas(NodoBPlus nodoBmas, int claveBmas, String caminoBmas) {
+        if (nodoBmas == null) {
             System.out.println("No se encontró la clave.");
             return;
         }
     
-        int i = 0;
-        while (i < nodo.claves.size() && clave > nodo.claves.get(i)) {
-            i++;
+        int iBmas = 0;
+        while (iBmas < nodoBmas.clavesBmas.size() && claveBmas > nodoBmas.clavesBmas.get(iBmas)) {
+            iBmas++;
         }
     
         // Imprimir el árbol resaltando la clave que se está verificando
-        System.out.println(CYAN + "----------------------------------------------------------------------------------------------------------" + RESET);
-        System.out.println(VERDE + "Recorrido actual del árbol" + RESET);
-        imprimirArbol(clave, i); // Pasar la clave buscada y el índice
+        System.out.println(CYANBmas + "----------------------------------------------------------------------------------------------------------" + RESETBmas);
+        System.out.println(VERDEBmas + "Recorrido actual del árbol" + RESETBmas);
+        imprimirArbolBmas(claveBmas, iBmas); // Pasar la clave buscada y el índice
     
         // Mostrar el mensaje de verificación después de imprimir el árbol
-        if (i < nodo.claves.size()) {
-            System.out.println("Verificando clave " + AMARILLO + "[" + nodo.claves.get(i) + "]" + RESET + ": dirección " + (clave > nodo.claves.get(i) ? "derecha" : "izquierda"));
+        if (iBmas < nodoBmas.clavesBmas.size()) {
+            System.out.println("Verificando clave " + AMARILLOBmas + "[" + nodoBmas.clavesBmas.get(iBmas) + "]" + RESETBmas + ": dirección " + (claveBmas > nodoBmas.clavesBmas.get(iBmas) ? "derecha" : "izquierda"));
         } else {
-            System.out.println("Verificando clave " + AMARILLO + "[Ninguna]" + RESET + ": dirección izquierda");
+            System.out.println("Verificando clave " + AMARILLOBmas + "[Ninguna]" + RESETBmas + ": dirección izquierda");
         }
     
         // Verificar si se encontró la clave
-        if (i < nodo.claves.size() && clave == nodo.claves.get(i)) {
-            camino += "Clave encontrada: " + clave + "\n";
-            System.out.println(camino);
+        if (iBmas < nodoBmas.clavesBmas.size() && claveBmas == nodoBmas.clavesBmas.get(iBmas)) {
+            caminoBmas += "Clave encontrada: " + claveBmas + "\n";
+            System.out.println(caminoBmas);
             return;
         }
     
-        if (nodo.esHoja) {
-            camino += "No se encontró la clave, el nodo más cercano es: " + (i > 0 ? nodo.claves.get(i - 1) : "Ninguna") + "\n";
-            System.out.println(camino);
+        if (nodoBmas.esHojaBmas) {
+            caminoBmas += "No se encontró la clave, el nodo más cercano es: " + (iBmas > 0 ? nodoBmas.clavesBmas.get(iBmas - 1) : "Ninguna") + "\n";
+            System.out.println(caminoBmas);
             return;
         }
     
         // Continuar la búsqueda en el hijo correspondiente
-        buscarEnNodo(nodo.hijos.get(i), clave, camino);
+        buscarEnNodoBmas(nodoBmas.hijosBmas.get(iBmas), claveBmas, caminoBmas);
     }
     
-    public void imprimirArbol(int claveBuscada, int indiceVerificacion) {
-        Queue<NodoBPlus> queue = new LinkedList<>();
-        queue.add(raiz);
-        int nivel = 0;
-        while (!queue.isEmpty()) {
-            int levelSize = queue.size();
+    public void imprimirArbolBmas(int claveBuscadaBmas, int indiceVerificacionBmas) {
+        Queue<NodoBPlus> queueBmas = new LinkedList<>();
+        queueBmas.add(raizBmas);
+        int nivelBmas = 0;
+        while (!queueBmas.isEmpty()) {
+            int levelSizeBmas = queueBmas.size();
             
             // Imprimir espacios en blanco según el nivel
-            if (nivel == 0) {
+            if (nivelBmas == 0) {
                 System.out.print("                 "); // 5 espacios para el nivel 0
-            } else if (nivel == 1) {
+            } else if (nivelBmas == 1) {
                 System.out.print("              "); // 3 espacios para el nivel 1
-            } else if (nivel == 2) {
+            } else if (nivelBmas == 2) {
                 System.out.print("          "); // 3 espacios para el nivel 1
-            } else if (nivel == 3) {
+            } else if (nivelBmas == 3) {
                 System.out.print(" "); // 3 espacios para el nivel 1
             }
     
-            for (int i = 0; i < levelSize; i++) {
-                NodoBPlus nodo = queue.poll();
-                for (int j = 0; j < nodo.claves.size(); j++) {
-                    Integer clave = nodo.claves.get(j);
+            for (int iBmas = 0; iBmas < levelSizeBmas; iBmas++) {
+                NodoBPlus nodoBmas = queueBmas.poll();
+                for (int jBmas = 0; jBmas < nodoBmas.clavesBmas.size(); jBmas++) {
+                    Integer claveBmas = nodoBmas.clavesBmas.get(jBmas);
                     // Resaltar las claves que se están verificando
-                    if (j == indiceVerificacion) {
-                        System.out.print(VERDE + "[" + clave + "]" + RESET + " "); // Colorear la clave que se está verificando
+                    if (jBmas == indiceVerificacionBmas) {
+                        System.out.print(VERDEBmas + "[" + claveBmas + "]" + RESETBmas + " "); // Colorear la clave que se está verificando
                     } else {
-                        System.out.print("[" + clave + "] "); // Agregar corchetes a las claves
+                        System.out.print("[" + claveBmas + "] "); // Agregar corchetes a las claves
                     }
                 }
-                if (!nodo.esHoja) {
-                    queue.addAll(nodo.hijos);
+                if (!nodoBmas.esHojaBmas) {
+                    queueBmas.addAll(nodoBmas.hijosBmas);
                 }
             }
             System.out.println();
-            nivel++;
+            nivelBmas++;
         }
     }
     
 }    
 
 //FIN Bùsqueda B+
+
 public class ArbolesDemo {
     
-    public static final String CYAN = "\u001B[36m";
-    public static final String ROJO = "\u001B[31m";
-    public static final String RESET = "\u001B[0m";
+    public static final String CYANBmas = "\u001B[36m";
+    public static final String ROJOBmas = "\u001B[31m";
+    public static final String RESETBmas = "\u001B[0m";
+    
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
+        Scanner scannerBmas = new Scanner(System.in);
 
-        
-        ArbolBPlus arbol = new ArbolBPlus(4);
-        System.out.println(ROJO + "Proyecto Segundo Bimestre");
-        System.out.println("Bienvenido al programa de árboles" + RESET);
+        ArbolBPlus arbolBmas = new ArbolBPlus(4);
+        System.out.println(ROJOBmas + "Proyecto Segundo Bimestre");
+        System.out.println("Bienvenido al programa de árboles" + RESETBmas);
         
         while (true) {
             try {
-                System.out.println(CYAN +"\nSeleccione el tipo de árbol:" + RESET);
+                System.out.println(CYANBmas +"\nSeleccione el tipo de árbol:" + RESETBmas);
                 System.out.println("1. Árbol AVL (no implementado)");
                 System.out.println("2. Árbol B (no implementado)");
                 System.out.println("3. Árbol B+");
                 System.out.println("0. Salir");
                 System.out.print("Ingrese el número del tipo de árbol: ");
-                int tipoArbol = Integer.parseInt(scanner.nextLine());
+                int tipoArbolBmas = Integer.parseInt(scannerBmas.nextLine());
 
-                if (tipoArbol == 0) {
+                if (tipoArbolBmas == 0) {
                     break;
-                } else if (tipoArbol == 3) {
+                } else if (tipoArbolBmas == 3) {
                     while (true) {
-                        System.out.println(CYAN + "\nMenu:" + RESET);
+                        System.out.println(CYANBmas + "\nMenu:" + RESETBmas);
                         System.out.println("1. Búsqueda de la clave de un nodo");
-                        System.out.println("2. Inserción de un nuevo nodo en el arbol(no implementado)");
-                        System.out.println("3. Eliminación de un nodo en el arbol(no implementado)");
-                        System.out.println("4. Recorrido del arbol(no implementado)");
+                        System.out.println("2. Inserción de un nuevo nodo en el arbol");
+                        System.out.println("3. Eliminación de un nodo en el arbol (no implementado)");
+                        System.out.println("4. Recorrido del arbol (no implementado)");
                         System.out.println("0. Volver al menú principal");
                         System.out.print("Ingrese el número de la operación: ");
-                        int operacion = Integer.parseInt(scanner.nextLine());
+                        int operacionBmas = Integer.parseInt(scannerBmas.nextLine());
 
-                        if (operacion == 0) {
+                        if (operacionBmas == 0) {
                             break;
-                        } else if (operacion == 1) {
-                            System.out.println(CYAN + "----------------------------------------------------------------------------------------------------------" + RESET);
-                            for (int i = 0; i < 15; i++) {
-                                arbol.insertar((int) (Math.random() * 100));
+                        } else if (operacionBmas == 1) {
+                            System.out.println(CYANBmas + "----------------------------------------------------------------------------------------------------------" + RESETBmas);
+                            for (int iBmas = 0; iBmas < 15; iBmas++) {
+                                arbolBmas.insertarBmas((int) (Math.random() * 100));
                             }
                             System.out.println("Arbol B+ generado");
-                            arbol.imprimirArbol(0, -1);
+                            arbolBmas.imprimirArbolBmas(0, -1);
                             System.out.print("Ingrese la clave a buscar: ");
-                            int claveBuscada = Integer.parseInt(scanner.nextLine());
-                            arbol.buscar(claveBuscada);
-                            System.out.println(CYAN + "----------------------------------------------------------------------------------------------------------" + RESET);
+                            int claveBuscadaBmas = Integer.parseInt(scannerBmas.nextLine());
+                            arbolBmas.buscarBmas(claveBuscadaBmas);
+                            System.out.println(CYANBmas + "----------------------------------------------------------------------------------------------------------" + RESETBmas);
                             
-                        } else if (operacion == 2) {
+
+                        } else if (operacionBmas == 2) {
+                            for (int iBmas = 0; iBmas < 15; iBmas++) {
+                                arbolBmas.insertarBmas((int) (Math.random() * 100));
+                            }
+                            System.out.println("Arbol B+ generado");
+                            arbolBmas.imprimirArbolBmas(0, -1);
                             System.out.print("Ingrese la clave a insertar: ");
-                            // Aquí iría la lógica de inserción
-                        } else if (operacion == 4) {
-                            System.out.println(CYAN + "----------------------------------------------" + RESET);
+                            int claveInsertarBmas = Integer.parseInt(scannerBmas.nextLine());
+                            arbolBmas.insertarBmas(claveInsertarBmas);
+                        } else if (operacionBmas == 4) {
+                            System.out.println(CYANBmas + "----------------------------------------------" + RESETBmas);
                             while (true) {
-                                System.out.println(CYAN + "\nMenú de Recorridos: " + RESET);
-                                arbol.imprimirArbol();
+                                System.out.println(CYANBmas + "\nMenú de Recorridos: " + RESETBmas);
                                 System.out.println("1. Recorrido In-order");
                                 System.out.println("2. Recorrido Pre-order");
                                 System.out.println("3. Recorrido Post-order");
@@ -245,39 +260,43 @@ public class ArbolesDemo {
                                 System.out.println("5. Volver al menú principal");
                                 System.out.print("Seleccione un recorrido: ");
                                 
-                                int recorrido = scanner.nextInt();
-                                
-                                switch (recorrido) {
-                                    case 1:
-                                        break;
-                                    case 2:
-                                        break;
-                                    case 3:
-                                        break;
-                                    case 4:
-                                        break;
-                                    case 5:
-                                        System.out.println("Volviendo al menú principal...");
-                                        break;
-                                    default:
-                                        System.out.println("Opción no válida.");
+                                try {
+                                    int recorridoBmas = scannerBmas.nextInt();
+                                    
+                                    switch (recorridoBmas) {
+                                        case 1:
+                                            break;
+                                        case 2:
+                                            break;
+                                        case 3:
+                                            break;
+                                        case 4:
+                                            break;
+                                        case 5:
+                                            System.out.println("Volviendo al menú principal...");
+                                            break;
+                                        default:
+                                            System.out.println("Opción no válida.");
+                                    }
+                                } catch (Exception e) {
+                                    System.out.println(ROJOBmas + "Entrada no válida. Por favor, ingrese un número." + RESETBmas);
+                                    scannerBmas.next(); // Limpiar el buffer
                                 }
-                                if (recorrido == 5) break;
+                                //if (recorridoBmas == 5) break;
                             }
-                            break;
+                            //break;
                         } else {
-                            System.out.println(ROJO + "Opción no válida." + RESET);
+                            System.out.println(ROJOBmas + "Opción no válida." + RESETBmas);
                         }
                     }
                 } else {
-                    System.out.println(ROJO + "Opción no válida." + RESET);
+                    System.out.println(ROJOBmas + "Opción no válida." + RESETBmas);
                 }
             } catch (NumberFormatException e) {
-                System.out.println(ROJO + "Entrada no válida. Por favor, ingrese un número." + RESET);
+                System.out.println(ROJOBmas + "Entrada no válida. Por favor, ingrese un número." + RESETBmas);
             }
         }
 
-        scanner.close();
+        scannerBmas.close();
     }
 }
-
