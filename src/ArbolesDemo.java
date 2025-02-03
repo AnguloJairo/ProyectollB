@@ -10,16 +10,14 @@ import java.util.Scanner;
 
 // **Árbol B+
 
-//Bùsqueda 
+//Bùsqueda B+
 
 class NodoBPlus {
     List<Integer> claves;
     List<NodoBPlus> hijos;
     boolean esHoja;
 
-    public NodoBPlus(int
-
- grado) {
+    public NodoBPlus(int grado) {
         this.claves = new ArrayList<>(grado - 1);
         this.hijos = new ArrayList<>(grado);
         this.esHoja = true;
@@ -49,9 +47,7 @@ class ArbolBPlus {
         }
     }
 
-    private
-
- void insertarEnNodo(NodoBPlus nodo, int clave) {
+    private void insertarEnNodo(NodoBPlus nodo, int clave) {
         int i = nodo.claves.size() - 1;
         if (nodo.esHoja) {
             while (i >= 0 && clave < nodo.claves.get(i)) {
@@ -98,44 +94,80 @@ class ArbolBPlus {
         buscarEnNodo(raiz, clave, "");
     }
 
+    public static final String VERDE = "\u001B[32m";
+    public static final String AMARILLO = "\u001B[33m";
+    public static final String CYAN = "\u001B[36m";
+    public static final String RESET = "\u001B[0m";
+
     private void buscarEnNodo(NodoBPlus nodo, int clave, String camino) {
         if (nodo == null) {
             System.out.println("No se encontró la clave.");
             return;
         }
-
+    
         int i = 0;
         while (i < nodo.claves.size() && clave > nodo.claves.get(i)) {
-            camino += "Verificando clave " + nodo.claves.get(i) + ": dirección derecha\n";
             i++;
         }
-
+    
+        // Imprimir el árbol resaltando la clave que se está verificando
+        System.out.println(CYAN + "----------------------------------------------------------------------------------------------------------" + RESET);
+        System.out.println(VERDE + "Recorrido actual del árbol" + RESET);
+        imprimirArbol(clave, i); // Pasar la clave buscada y el índice
+    
+        // Mostrar el mensaje de verificación después de imprimir el árbol
+        if (i < nodo.claves.size()) {
+            System.out.println("Verificando clave " + AMARILLO + "[" + nodo.claves.get(i) + "]" + RESET + ": dirección " + (clave > nodo.claves.get(i) ? "derecha" : "izquierda"));
+        } else {
+            System.out.println("Verificando clave " + AMARILLO + "[Ninguna]" + RESET + ": dirección izquierda");
+        }
+    
+        // Verificar si se encontró la clave
         if (i < nodo.claves.size() && clave == nodo.claves.get(i)) {
             camino += "Clave encontrada: " + clave + "\n";
             System.out.println(camino);
             return;
         }
-
+    
         if (nodo.esHoja) {
             camino += "No se encontró la clave, el nodo más cercano es: " + (i > 0 ? nodo.claves.get(i - 1) : "Ninguna") + "\n";
             System.out.println(camino);
             return;
         }
-
-        camino += "Verificando clave " + (i < nodo.claves.size() ? nodo.claves.get(i) : "Ninguna") + ": dirección izquierda\n";
+    
+        // Continuar la búsqueda en el hijo correspondiente
         buscarEnNodo(nodo.hijos.get(i), clave, camino);
     }
-
-    public void imprimirArbol() {
+    
+    public void imprimirArbol(int claveBuscada, int indiceVerificacion) {
         Queue<NodoBPlus> queue = new LinkedList<>();
         queue.add(raiz);
         int nivel = 0;
         while (!queue.isEmpty()) {
             int levelSize = queue.size();
-            System.out.print("Nivel " + nivel + ": ");
+            
+            // Imprimir espacios en blanco según el nivel
+            if (nivel == 0) {
+                System.out.print("                 "); // 5 espacios para el nivel 0
+            } else if (nivel == 1) {
+                System.out.print("              "); // 3 espacios para el nivel 1
+            } else if (nivel == 2) {
+                System.out.print("          "); // 3 espacios para el nivel 1
+            } else if (nivel == 3) {
+                System.out.print(" "); // 3 espacios para el nivel 1
+            }
+    
             for (int i = 0; i < levelSize; i++) {
                 NodoBPlus nodo = queue.poll();
-                System.out.print(nodo.claves + " ");
+                for (int j = 0; j < nodo.claves.size(); j++) {
+                    Integer clave = nodo.claves.get(j);
+                    // Resaltar las claves que se están verificando
+                    if (j == indiceVerificacion) {
+                        System.out.print(VERDE + "[" + clave + "]" + RESET + " "); // Colorear la clave que se está verificando
+                    } else {
+                        System.out.print("[" + clave + "] "); // Agregar corchetes a las claves
+                    }
+                }
                 if (!nodo.esHoja) {
                     queue.addAll(nodo.hijos);
                 }
@@ -144,13 +176,14 @@ class ArbolBPlus {
             nivel++;
         }
     }
-}
+    
+}    
 
+//FIN Bùsqueda B+
 public class ArbolesDemo {
     
     public static final String CYAN = "\u001B[36m";
     public static final String ROJO = "\u001B[31m";
-    public static final String VERDE = "\u001B[32m";
     public static final String RESET = "\u001B[0m";
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
@@ -186,16 +219,16 @@ public class ArbolesDemo {
                         if (operacion == 0) {
                             break;
                         } else if (operacion == 1) {
-                            System.out.println(CYAN + "----------------------------------------------" + RESET);
+                            System.out.println(CYAN + "----------------------------------------------------------------------------------------------------------" + RESET);
                             for (int i = 0; i < 15; i++) {
                                 arbol.insertar((int) (Math.random() * 100));
                             }
                             System.out.println("Arbol B+ generado");
-                            arbol.imprimirArbol();
+                            arbol.imprimirArbol(0, -1);
                             System.out.print("Ingrese la clave a buscar: ");
                             int claveBuscada = Integer.parseInt(scanner.nextLine());
                             arbol.buscar(claveBuscada);
-                            System.out.println(CYAN + "----------------------------------------------" + RESET);
+                            System.out.println(CYAN + "----------------------------------------------------------------------------------------------------------" + RESET);
                             
                         } else if (operacion == 2) {
                             System.out.print("Ingrese la clave a insertar: ");
