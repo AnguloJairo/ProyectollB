@@ -1,8 +1,4 @@
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
-import java.util.Scanner;
+import java.util.*;
 
 // **Árbol AVL
 
@@ -286,22 +282,87 @@ public class ArbolesDemo {
     public static void main(String[] args) {
         Scanner scannerBmas = new Scanner(System.in);
 
+        int opcionOperacion, opcionRecorrido;
+
         ArbolBPlus arbolBmas = new ArbolBPlus(4);
         System.out.println(ROJOBmas + "Proyecto Segundo Bimestre");
         System.out.println("Bienvenido al programa de árboles" + RESETBmas);
 
         // Variable para controlar si el árbol ya ha sido inicializado
         boolean arbolInicializado = false;
+        boolean salir = false;
 
-        while (true) {
+        while (!salir) {
             try {
                 System.out.println(CYANBmas + "\nSeleccione el tipo de árbol:" + RESETBmas);
                 System.out.println("1. Árbol AVL (no implementado)");
-                System.out.println("2. Árbol B (no implementado)");
+                System.out.println("2. Árbol B ");
                 System.out.println("3. Árbol B+");
                 System.out.println("0. Salir");
                 System.out.print("Ingrese el número del tipo de árbol: ");
                 int tipoArbolBmas = Integer.parseInt(scannerBmas.nextLine());
+
+                if (tipoArbolBmas == 0) {
+                    salir = true;
+                    continue;
+                }
+    
+                if (tipoArbolBmas == 2) {
+                    ArbolB arbol = new ArbolB();
+                    arbol.generarArbolAutomático();
+                    System.out.println("\nÁrbol B generado automáticamente:");
+                    arbol.mostrarArbol();
+    
+                    while (true) {
+                        System.out.println("\n--- Operaciones ---");
+                        System.out.println("1. Búsqueda de la clave de un nodo");
+                        System.out.println("2. Inserción de un nuevo nodo en el árbol");
+                        System.out.println("3. Eliminación de un nodo del árbol");
+                        System.out.println("4. Recorrido del árbol");
+                        System.out.println("5. Volver al menú principal");
+                        System.out.print("Seleccione una operación: ");
+                        opcionOperacion = obtenerEnteroEnRango(scannerBmas, 1, 5);
+    
+                        if (opcionOperacion == 5) {
+                            break;
+                        }
+    
+                        switch (opcionOperacion ) {
+                            case 1:
+                                System.out.print("Ingrese la clave a buscar (1-100): ");
+                                int claveBuscar = obtenerEnteroEnRango(scannerBmas, 1, 100);
+                                arbol.buscarConColor(claveBuscar);
+                                break;
+                            case 2:
+                                System.out.print("Ingrese la clave a insertar (1-100): ");
+                                int claveInsertar = obtenerEnteroEnRango(scannerBmas, 1, 100);
+                                arbol.insertarConExplicacion(claveInsertar);
+                                break;
+                            case 3:
+                                System.out.print("Ingrese la clave a eliminar (1-100): ");
+                                int claveEliminar = obtenerEnteroEnRango(scannerBmas, 1, 100);
+                                arbol.eliminarConExplicacion(claveEliminar);
+                                break;
+                            case 4:
+                                System.out.println("\n--- Recorridos ---");
+                                System.out.println("1. Recorrido In-order");
+                                System.out.println("2. Recorrido Pre-order");
+                                System.out.println("3. Recorrido Post-order");
+                                System.out.println("4. Recorrido Level-order");
+                                System.out.print("Seleccione un recorrido: ");
+                                opcionRecorrido = obtenerEnteroEnRango(scannerBmas, 1, 4);
+                                arbol.recorrerConColor(opcionRecorrido);
+                                break;
+                            default:
+                                System.out.println("Opción no válida.");
+                        }
+    
+                        System.out.println("\nÁrbol B actualizado:");
+                        arbol.mostrarArbol();
+                    }
+                } else {
+                    System.out.println("Opción no implementada. Solo el Árbol B está disponible.");
+                }
 
                 if (tipoArbolBmas == 0) {
                     break;
@@ -400,4 +461,292 @@ public class ArbolesDemo {
 
         scannerBmas.close();
     }
+    private static int obtenerEnteroEnRango(Scanner scanner, int min, int max) {
+        while (true) {
+            try {
+                int valor = scanner.nextInt();
+                if (valor >= min && valor <= max) {
+                    return valor;
+                } else {
+                    System.out.print("Por favor, ingrese un número entre " + min + " y " + max + ": ");
+                }
+            } catch (InputMismatchException e) {
+                System.out.print("Entrada no válida. Por favor, ingrese un número: ");
+                scanner.next(); // Limpiar el buffer del scanner
+            }
+        }
+    }
 }
+
+class ArbolB implements Arbol {
+    private List<Integer> claves = new ArrayList<>();
+    private Random random = new Random();
+
+    public void generarArbolAutomático() {
+        int numClaves = random.nextInt(9) + 7; // Entre 7 y 15 claves
+        System.out.println("\nGenerando árbol automáticamente con " + numClaves + " claves...");
+        for (int i = 0; i < numClaves; i++) {
+            int clave = random.nextInt(100) + 1;
+            insertar(clave);
+        }
+    }
+
+    @Override
+    public void insertar(int clave) {
+        claves.add(clave);
+        Collections.sort(claves);
+    }
+
+    public void insertarConExplicacion(int clave) {
+        System.out.println("\nIniciando inserción de la clave " + clave + "...");
+        System.out.println("Paso 1: Verificar si la clave ya existe en el árbol.");
+        if (claves.contains(clave)) {
+            System.out.println("La clave " + clave + " ya existe en el árbol. No se insertará.");
+            return;
+        }
+
+        System.out.println("Paso 2: Insertar la clave " + clave + " en el árbol.");
+        System.out.println("Árbol antes de la inserción:");
+        mostrarArbol();
+
+        claves.add(clave);
+        Collections.sort(claves);
+
+        System.out.println("\nPaso 3: Reorganizar el árbol para mantener el orden.");
+        System.out.println("Árbol después de la inserción:");
+        mostrarArbol();
+
+        System.out.println("Clave " + clave + " insertada correctamente.");
+    }
+
+    @Override
+    public boolean buscar(int clave) {
+        for (int i = 0; i < claves.size(); i++) {
+            System.out.println("Comparando con la clave: " + claves.get(i));
+            if (claves.get(i).equals(clave)) {
+                pintarNodoEnArbol(i); // Resaltar el nodo encontrado
+                return true;
+            }
+            pintarNodoEnArbol(i); // Resaltar el nodo actual
+        }
+        return false;
+    }
+
+    public void buscarConColor(int clave) {
+        System.out.println("\nIniciando búsqueda de la clave " + clave + "...");
+        boolean encontrado = buscar(clave);
+        if (encontrado) {
+            System.out.println("La clave " + clave + " está presente en el árbol.");
+        } else {
+            System.out.println("No existe en el árbol, un nodo con la clave " + clave + ".");
+        }
+    }
+
+    @Override
+    public boolean eliminar(int clave) {
+        if (!claves.contains(clave)) {
+            System.out.println("No existe en el árbol, un nodo con la clave " + clave + ".");
+            return false;
+        }
+
+        System.out.println("Eliminando clave " + clave + " del árbol B.");
+        eliminarClave(clave);
+        //verificarCondiciones();
+        mostrarArbol();
+        return true;
+    }
+
+    public void eliminarConExplicacion(int clave) {
+        System.out.println("\nIniciando eliminación de la clave " + clave + "...");
+        System.out.println("Paso 1: Verificar si la clave existe en el árbol.");
+        if (!claves.contains(clave)) {
+            System.out.println("La clave " + clave + " no existe en el árbol. No se eliminará.");
+            return;
+        }
+
+        System.out.println("Paso 2: Eliminar la clave " + clave + " del árbol.");
+        System.out.println("Árbol antes de la eliminación:");
+        mostrarArbol();
+
+        claves.remove(Integer.valueOf(clave));
+        Collections.sort(claves);
+
+        System.out.println("\nPaso 3: Reorganizar el árbol para mantener el orden.");
+        System.out.println("Árbol después de la eliminación:");
+        mostrarArbol();
+
+        System.out.println("Clave " + clave + " eliminada correctamente.");
+        System.out.println("Generando matriz de adyacencia...");
+        generarMatrizAdyacencia();
+    }
+
+    private void eliminarClave(int clave) {
+        claves.remove(Integer.valueOf(clave));
+        Collections.sort(claves);
+        System.out.println("Clave " + clave + " eliminada.");
+    }
+
+    private void generarMatrizAdyacencia() {
+        int n = claves.size();
+        int[][] matriz = new int[n][n];
+
+        for (int i = 0; i < n; i++) {
+            int leftChild = 2 * i + 1;
+            int rightChild = 2 * i + 2;
+
+            if (leftChild < n) {
+                matriz[i][leftChild] = 1;
+            }
+            if (rightChild < n) {
+                matriz[i][rightChild] = 1;
+            }
+        }
+
+        System.out.println("\nMatriz de adyacencia:");
+        System.out.println("Nota: Los '1's indican una conexión entre nodos.");
+        System.out.print("     ");
+        for (int i = 0; i < n; i++) {
+            System.out.printf("%-5d", claves.get(i));
+        }
+        System.out.println();
+
+        for (int i = 0; i < n; i++) {
+            System.out.printf("%-5d", claves.get(i));
+            for (int j = 0; j < n; j++) {
+                System.out.printf("%-5d", matriz[i][j]);
+            }
+            System.out.println();
+        }
+    }
+
+    @Override
+    public void recorrerConColor(int tipoRecorrido) {
+        List<Integer> recorrido = new ArrayList<>();
+        switch (tipoRecorrido) {
+            case 1:
+                System.out.println("\nRecorrido In-order:");
+                recorrerInOrder(0, recorrido);
+                break;
+            case 2:
+                System.out.println("\nRecorrido Pre-order:");
+                recorrerPreOrder(0, recorrido);
+                break;
+            case 3:
+                System.out.println("\nRecorrido Post-order:");
+                recorrerPostOrder(0, recorrido);
+                break;
+            case 4:
+                System.out.println("\nRecorrido Level-order:");
+                recorrerLevelOrder(recorrido);
+                break;
+            default:
+                System.out.println("Opción de recorrido no válida.");
+                return;
+        }
+        System.out.println("Recorrido completado: " + recorrido);
+    }
+
+    private void recorrerInOrder(int indice, List<Integer> recorrido) {
+        if (indice < claves.size()) {
+            recorrerInOrder(2 * indice + 1, recorrido);
+            pintarNodoEnArbol(indice);
+            recorrido.add(claves.get(indice));
+            recorrerInOrder(2 * indice + 2, recorrido);
+        }
+    }
+
+    private void recorrerPreOrder(int indice, List<Integer> recorrido) {
+        if (indice < claves.size()) {
+            pintarNodoEnArbol(indice);
+            recorrido.add(claves.get(indice));
+            recorrerPreOrder(2 * indice + 1, recorrido);
+            recorrerPreOrder(2 * indice + 2, recorrido);
+        }
+    }
+
+    private void recorrerPostOrder(int indice, List<Integer> recorrido) {
+        if (indice < claves.size()) {
+            recorrerPostOrder(2 * indice + 1, recorrido);
+            recorrerPostOrder(2 * indice + 2, recorrido);
+            pintarNodoEnArbol(indice);
+            recorrido.add(claves.get(indice));
+        }
+    }
+
+    private void recorrerLevelOrder(List<Integer> recorrido) {
+        for (int i = 0; i < claves.size(); i++) {
+            pintarNodoEnArbol(i);
+            recorrido.add(claves.get(i));
+        }
+    }
+
+    private void pintarNodoEnArbol(int indice) {
+        mostrarArbol(indice);
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void mostrarArbol() {
+        mostrarArbol(-1);
+    }
+
+    public void mostrarArbol(int nodoResaltado) {
+        if (claves.isEmpty()) {
+            System.out.println("Árbol vacío.");
+            return;
+        }
+
+        System.out.println("\nÁrbol B con altura 3:");
+
+        int anchoMaximo = 57;
+        int espaciadoNivel1 = anchoMaximo / 2;
+        int espaciadoNivel2 = anchoMaximo / 3;
+        int espaciadoNivel3 = anchoMaximo / 5;
+
+        // Raíz
+        imprimirNodo(nodoResaltado, 0, espaciadoNivel1);
+        System.out.println();
+        System.out.printf("%" + espaciadoNivel1 / 2 + "s%s\n", " ", "    /            \\");
+
+        for (int i = 1; i <= 2; i++) {
+            imprimirNodo(nodoResaltado, i, espaciadoNivel2);
+        }
+        System.out.println();
+        System.out.println("            /    \\               /   \\");
+
+        for (int i = 3; i <= 6; i++) {
+            imprimirNodo(nodoResaltado, i, espaciadoNivel3);
+        }
+        System.out.println();
+        System.out.println("       / \\        / \\        / \\        / \\");
+
+        for (int i = 7; i < 15 && i < claves.size(); i++) {
+            imprimirNodo(nodoResaltado, i, 5);
+        }
+        System.out.println();
+    }
+
+    private void imprimirNodo(int nodoResaltado, int indice, int espaciado) {
+        if (indice < claves.size()) {
+            if (indice == nodoResaltado) {
+                System.out.printf("%" + espaciado + "s", "\u001B[31m| " + claves.get(indice) + " |\u001B[0m"); // Resaltar en rojo
+            } else {
+                System.out.printf("%" + espaciado + "s", "| " + claves.get(indice) + " |");
+            }
+        }
+    }
+}
+
+interface Arbol {
+    void insertar(int clave);
+    boolean buscar(int clave);
+    void buscarConColor(int clave);
+    boolean eliminar(int clave);
+    void recorrerConColor(int tipoRecorrido);
+    void mostrarArbol();
+}
+
