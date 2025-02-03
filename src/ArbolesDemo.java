@@ -203,7 +203,8 @@ public class ArbolesDemo {
                         } else if (operacion == 4) {
                             System.out.println(CYAN + "----------------------------------------------" + RESET);
                             while (true) {
-                                System.out.println(CYAN + "\nMenú de Recorridos:" + RESET);
+                                System.out.println(CYAN + "\nMenú de Recorridos: " + RESET);
+                                arbol.imprimirArbol();
                                 System.out.println("1. Recorrido In-order");
                                 System.out.println("2. Recorrido Pre-order");
                                 System.out.println("3. Recorrido Post-order");
@@ -215,16 +216,12 @@ public class ArbolesDemo {
                                 
                                 switch (recorrido) {
                                     case 1:
-                                        
                                         break;
                                     case 2:
-                                       
                                         break;
                                     case 3:
-                                       
                                         break;
                                     case 4:
-                
                                         break;
                                     case 5:
                                         System.out.println("Volviendo al menú principal...");
