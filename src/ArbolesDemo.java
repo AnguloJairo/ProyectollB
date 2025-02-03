@@ -234,7 +234,37 @@ public class ArbolesDemo {
                             System.out.print("Ingrese la clave a insertar: ");
                             // Aquí iría la lógica de inserción
                         } else if (operacion == 4) {
-                            // Aquí iría la lógica de recorrido
+                            System.out.println(CYAN + "----------------------------------------------" + RESET);
+                            while (true) {
+                                System.out.println(CYAN + "\nMenú de Recorridos: " + RESET);
+                                arbol.imprimirArbol();
+                                System.out.println("1. Recorrido In-order");
+                                System.out.println("2. Recorrido Pre-order");
+                                System.out.println("3. Recorrido Post-order");
+                                System.out.println("4. Recorrido Level-order");
+                                System.out.println("5. Volver al menú principal");
+                                System.out.print("Seleccione un recorrido: ");
+                                
+                                int recorrido = scanner.nextInt();
+                                
+                                switch (recorrido) {
+                                    case 1:
+                                        break;
+                                    case 2:
+                                        break;
+                                    case 3:
+                                        break;
+                                    case 4:
+                                        break;
+                                    case 5:
+                                        System.out.println("Volviendo al menú principal...");
+                                        break;
+                                    default:
+                                        System.out.println("Opción no válida.");
+                                }
+                                if (recorrido == 5) break;
+                            }
+                            break;
                         } else {
                             System.out.println(ROJO + "Opción no válida." + RESET);
                         }
