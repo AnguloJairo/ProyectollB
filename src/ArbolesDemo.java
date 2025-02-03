@@ -1,11 +1,13 @@
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.InputMismatchException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Random;
 import java.util.Scanner;
+import java.util.Set;
 
 class NodoBPlus {
     List<Integer> clavesBmas;
